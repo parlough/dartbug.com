@@ -43,7 +43,7 @@ final _matchers = <RegExp, Uri Function(String)>{
       )
 };
 
-String _checkMatch(RegExp re, String path) {
+String? _checkMatch(RegExp re, String path) {
   final match = re.firstMatch(path);
   if (match != null) {
     return match.group(match.groupCount);
@@ -52,18 +52,17 @@ String _checkMatch(RegExp re, String path) {
   }
 }
 
-List<String> _areaLabelCache;
-
-List<String> get _areaLabels => _areaLabelCache ??= List<String>.from(
-      jsonDecode(
-        File(fixPath('lib/sdk_labels.json')).readAsStringSync(),
-      ) as List,
-    )..removeWhere((label) => !label.startsWith('area-'));
+late final List<String> _areaLabels = (jsonDecode(
+  File(fixPath('lib/sdk_labels.json')).readAsStringSync(),
+) as List)
+    .whereType<String>()
+    .where((label) => label.startsWith('area-'))
+    .toList(growable: false);
 
 /// Find the redirect for the supplied [requestUri].
 ///
 /// Returns the [Uri] to redirect to or `null` if no redirect is defined.
-Uri findRedirect(Uri requestUri) {
+Uri? findRedirect(Uri requestUri) {
   if (requestUri.pathSegments.isEmpty) {
     return _listIssues;
   }
